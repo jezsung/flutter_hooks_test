@@ -8,14 +8,19 @@ import 'package:flutter_test/flutter_test.dart';
 Future<_HookTestingAction<T, P>> buildHook<T, P>(
   T Function(P? props) hook, {
   P? initialProps,
+  Widget Function(HookBuilder hookBuilder)? provide,
 }) async {
   late T result;
 
   Widget builder([P? props]) {
-    return HookBuilder(builder: (context) {
-      result = hook(props);
-      return Container();
-    });
+    final hookBuilder = HookBuilder(
+      builder: (context) {
+        result = hook(props);
+        return Container();
+      },
+    );
+
+    return provide?.call(hookBuilder) ?? hookBuilder;
   }
 
   await _build(builder(initialProps));
